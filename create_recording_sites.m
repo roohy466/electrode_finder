@@ -1,0 +1,49 @@
+function [record_bean ,record_bean_xyz ,record_bean_percentage ,record_bean_percent_init]=...
+    create_recording_sites(node_existance_rotated_zy_ribbon,...
+    node_existance_rotated_zy,electrod_voxes,reverse_rotation,reverse_shift_matrix,hemi)
+
+electrod_voxes_with_min=setdiff(electrod_voxes,[]);
+if strcmp(hemi,'lh')==1
+    electrod_voxes_with_min=sort(electrod_voxes_with_min, 'descend' );
+end
+
+for r=2:size(electrod_voxes_with_min,2)
+    if strcmp(hemi,'lh')==1
+        nod_exist_ribbon=find((node_existance_rotated_zy_ribbon(1,:)<....
+            electrod_voxes_with_min(r-1)).*(node_existance_rotated_zy_ribbon(1,:)...
+            >=electrod_voxes_with_min(r)));
+        nod_exist_orig=find((node_existance_rotated_zy(1,:)<...
+            electrod_voxes_with_min(r-1)).*(node_existance_rotated_zy(1,:)...
+            >=electrod_voxes_with_min(r)));
+    else
+        nod_exist_ribbon=find((node_existance_rotated_zy_ribbon(1,:)>=....
+            electrod_voxes_with_min(r-1)).*(node_existance_rotated_zy_ribbon(1,:)...
+            <electrod_voxes_with_min(r)));
+        nod_exist_orig=find((node_existance_rotated_zy(1,:)>=...
+            electrod_voxes_with_min(r-1)).*(node_existance_rotated_zy(1,:)...
+            <electrod_voxes_with_min(r)));
+    end
+    % plot3(node_existance_rotated_zy_ribbon(1,nod_exist_ribbon),...
+    %node_existance_rotated_zy_ribbon(2,nod_exist_ribbon),node_existance_rotated_zy_ribbon(3,nod_exist_ribbon),'.')
+    % plot3(node_existance_rotated_zy(1,nod_exist_orig),node_existance_rotated_zy(2,nod_exist_orig),...
+    %node_existance_rotated_zy(3,nod_exist_orig),'.')
+    if size(nod_exist_ribbon,2)>0
+        % applying reverse rotation to get back to the coord format
+        record_bean{r-1}=(reverse_rotation*node_existance_rotated_zy_ribbon(:,nod_exist_ribbon)+...
+            repmat(reverse_shift_matrix,1,size(nod_exist_ribbon,2)));
+        if size(nod_exist_ribbon,2)>1
+            record_bean_xyz{r-1}=(reverse_rotation*(mean(node_existance_rotated_zy_ribbon(:,nod_exist_ribbon)')')+...
+                reverse_shift_matrix);
+        else
+            record_bean_xyz{r-1}=(reverse_rotation*((node_existance_rotated_zy_ribbon(:,nod_exist_ribbon)')')+...
+                reverse_shift_matrix);
+        end
+        record_bean_percentage(r-1)=size(nod_exist_ribbon,2)/size(nod_exist_orig,2);
+    else
+        record_bean{r-1}=NaN;
+        record_bean_xyz{r-1}=NaN;
+        record_bean_percentage(r-1)=size(nod_exist_ribbon,2)/size(nod_exist_orig,2);
+    end
+    record_bean_percent_init(:,r-1)=[size(nod_exist_ribbon,2), size(nod_exist_orig,2)];
+end
+
