@@ -43,8 +43,8 @@ Create a link by issuing:
         
     sudo ln -s /usr/lib/libstdc++.so.6 libstdc++.so.6???
 
+**************************************************************************
 
-######################################################################
 list of electrods that used in the patients first you shoud go the subjects folder.
 
      electrode_finder(SUBJName,varagin)
